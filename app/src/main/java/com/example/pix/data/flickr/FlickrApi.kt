@@ -12,7 +12,7 @@ interface FlickrApi {
     suspend fun search(
         @Query("text") text: String = "cats",
         @Query("page") page: Int = 1,
-        @Query("per_page") count: Int = 100,
+        @Query("per_page") count: Int = 10,
     ): FlickrResult
 
     companion object {

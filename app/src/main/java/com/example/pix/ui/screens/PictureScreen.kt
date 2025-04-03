@@ -1,19 +1,16 @@
 package com.example.pix.ui.screens
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -25,26 +22,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
-import com.example.pix.R
-import com.example.pix.domain.entity.Picture
+import coil3.compose.AsyncImage
 
 @Composable
-fun PictureScreen(picture: Picture = Picture("url", "Test")) {
+fun PictureScreen(url: String) {
     Scaffold {
         PictureScreenContent(
             modifier = Modifier.padding(paddingValues = it),
-            picture = picture
+            url = url
         )
     }
 }
 
 @Composable
-fun PictureScreenContent(modifier: Modifier, picture: Picture) {
+fun PictureScreenContent(modifier: Modifier, url: String) {
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         Column(
@@ -52,24 +44,13 @@ fun PictureScreenContent(modifier: Modifier, picture: Picture) {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-            Column(Modifier
-                .fillMaxHeight(0.5f)
-                .fillMaxWidth()) {
-                ZoomablePictureBox(url = picture.url, Modifier)
+            Column(
+                Modifier
+                    .fillMaxHeight(0.5f)
+                    .fillMaxWidth()
+            ) {
+                ZoomablePictureBox(url = url, Modifier)
             }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = paddingMedium),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(
-                picture.title, style = TextStyle(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            )
         }
     }
 }
@@ -98,9 +79,9 @@ fun ZoomablePictureBox(url: String, modifier: Modifier = Modifier) {
             )
         }
 
-        Image(
-            painterResource(R.drawable.image),
-            null,
+        AsyncImage(
+            model = url,
+            contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
@@ -110,7 +91,7 @@ fun ZoomablePictureBox(url: String, modifier: Modifier = Modifier) {
                     translationY = offset.y
                 }
                 .transformable(state),
-            contentScale = ContentScale.Fit
+            contentScale = ContentScale.Fit,
         )
     }
 }
@@ -118,5 +99,5 @@ fun ZoomablePictureBox(url: String, modifier: Modifier = Modifier) {
 @Composable
 @Preview(showBackground = true)
 fun PictureScreenPreview() {
-    PictureScreenContent(Modifier.fillMaxSize(), Picture("url", "title"))
+    PictureScreenContent(Modifier.fillMaxSize(), "")
 }

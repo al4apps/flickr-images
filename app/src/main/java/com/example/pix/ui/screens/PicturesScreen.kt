@@ -1,6 +1,6 @@
 package com.example.pix.ui.screens
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,44 +29,56 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.example.pix.R
 import com.example.pix.domain.entity.Picture
+import com.example.pix.ui.navigation.Screens
+import com.example.pix.ui.viewmodels.PicturesViewModel
+import com.example.pix.ui.viewmodels.SearchResult
 
 @Composable
-fun PicturesScreen(navController: NavController) {
-    Scaffold(modifier = Modifier.fillMaxSize()) {
+fun PicturesScreen(navController: NavController, viewModel: PicturesViewModel = hiltViewModel()) {
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+
+        val result by viewModel.result.collectAsState()
+        if (result is SearchResult.Error) {
+            Toast.makeText(
+                navController.context,
+                stringResource(R.string.load_result_error_message), Toast.LENGTH_SHORT
+            ).show()
+        }
+
         PicturesScreenContent(
-            modifier = Modifier.padding(paddingValues = it),
-            onImageClick = { },
-            onQueryChange = { }
+            list = if (result is SearchResult.Success) (result as SearchResult.Success).pictures else emptyList(),
+            modifier = Modifier.padding(paddingValues = paddingValues),
+            onImageClick = { navController.navigate(Screens.Picture.withArgs(it.urlMax)) },
+            onQueryChange = { query -> viewModel.onQueryChanged(query) }
         )
     }
 }
 
 @Composable
 fun PicturesScreenContent(
+    list: List<Picture>,
     modifier: Modifier,
     onImageClick: (pic: Picture) -> Unit,
-    onQueryChange: (String) -> Unit) {
+    onQueryChange: (String) -> Unit
+) {
     Column(modifier = modifier) {
 
         SearchTextField(onQueryChange)
         PictureList(
-            listOf(
-                Picture("url", "title"),
-                Picture("url", "title"),
-                Picture("url", "title"),
-            ),
+            list,
             modifier = Modifier.padding(horizontal = paddingMedium),
             onClick = onImageClick
-            )
+        )
     }
 }
 
@@ -97,10 +110,10 @@ fun PictureList(
     onClick: (pic: Picture) -> Unit
 ) {
     LazyVerticalGrid(
-        columns = GridCells.Adaptive(200.dp),
+        columns = GridCells.Adaptive(gridMinSize),
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(paddingMedium),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(paddingSmall)
     ) {
         items(pictures.size) { index ->
             PictureCard(pictures[index], onClick = onClick)
@@ -117,17 +130,10 @@ fun PictureCard(picture: Picture, modifier: Modifier = Modifier, onClick: (pic: 
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Green),
+                .fillMaxSize(),
             contentAlignment = Alignment.BottomStart
         ) {
-            Image(
-                painterResource(R.drawable.image),
-                null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-//            LoadImage(picture)
+            LoadImage(picture)
             TextOnImage(picture.title)
         }
     }
@@ -142,7 +148,7 @@ fun TextOnImage(text: String) {
             fontWeight = FontWeight.Normal
         ),
         modifier = Modifier
-            .padding(start = paddingMedium, bottom = paddingMedium)
+            .padding(start = paddingMedium, bottom = paddingMedium, end = paddingMedium)
             .background(
                 Color.Black.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(4.dp)
@@ -157,16 +163,15 @@ fun LoadImage(picture: Picture) {
         model = picture.url,
         contentDescription = picture.title,
         modifier = Modifier.fillMaxSize(),
-        placeholder = painterResource(R.drawable.image),
         contentScale = ContentScale.Crop
     )
 }
 
-@Composable
-@Preview(showBackground = true)
-fun SearchContentPreview() {
-    PicturesScreenContent(Modifier.fillMaxSize(), {}, {})
-}
+//@Composable
+//@Preview(showBackground = true)
+//fun SearchContentPreview() {
+//    PicturesScreenContent(emptyList(),  Modifier.fillMaxSize(), {}, {})
+//}
 
 //@Composable
 //@Preview(showBackground = true)
