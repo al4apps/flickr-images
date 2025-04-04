@@ -14,7 +14,7 @@ class FlickrRepositoryImpl(
     private suspend fun search(
         text: String,
         page: Int = 1,
-        count: Int = 10
+        count: Int = 100
     ): Result<List<Picture>> = runCatching {
         val result = flickrApi.search(text, page, count)
         result.photos?.let { photos ->

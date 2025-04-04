@@ -29,7 +29,7 @@ fun AppNavigation() {
             val url = it.arguments?.getString(Screens.URL)?.let { url ->
                 Uri.decode(url)
             } ?: ""
-            PictureScreen(url = url)
+            PictureScreen(navController, url = url)
         }
     }
 }

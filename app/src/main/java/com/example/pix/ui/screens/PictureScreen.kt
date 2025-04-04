@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -22,12 +26,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import com.example.pix.R
 
 @Composable
-fun PictureScreen(url: String) {
-    Scaffold {
+fun PictureScreen(navController: NavController, url: String) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = { PictureTopBar { navController.navigateUp() } }
+    ) {
         PictureScreenContent(
             modifier = Modifier.padding(paddingValues = it),
             url = url
@@ -53,6 +64,23 @@ fun PictureScreenContent(modifier: Modifier, url: String) {
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PictureTopBar(modifier: Modifier = Modifier, onBackClick: () -> Unit) {
+    TopAppBar(
+        title = { },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = { onBackClick() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.back),
+                    contentDescription = null,
+                )
+            }
+        }
+    )
 }
 
 @Composable

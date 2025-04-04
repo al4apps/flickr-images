@@ -134,7 +134,7 @@ fun PictureCard(picture: Picture, modifier: Modifier = Modifier, onClick: (pic: 
             contentAlignment = Alignment.BottomStart
         ) {
             LoadImage(picture)
-            TextOnImage(picture.title)
+            if (picture.title.isNotBlank()) TextOnImage(picture.title)
         }
     }
 }
